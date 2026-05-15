@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Replicating Partisan Opinion Cascades (Macy et al.&nbsp;2019) via Agent-Based Modeling</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-f418161beb48e0141c760e455f12af2c.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-338451a26860d076e668133d52d26d7f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-projects" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Projects</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-projects">    
+        <li>
+    <a class="dropdown-item" href="./opinioncascades.html">
+ <span class="dropdown-text">Replicating Partisan Opinion Cascades (Macy et al.&nbsp;2019) via Agent-Based Modeling</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#opinion-cascades" id="toc-opinion-cascades" class="nav-link active" data-scroll-target="#opinion-cascades">Opinion Cascades</a></li>
+  <li><a href="#simulation-testbed-and-specification" id="toc-simulation-testbed-and-specification" class="nav-link" data-scroll-target="#simulation-testbed-and-specification">Simulation testbed and specification</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#discussion-and-conclusion" id="toc-discussion-and-conclusion" class="nav-link" data-scroll-target="#discussion-and-conclusion">Discussion and Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Replicating Partisan Opinion Cascades (Macy et al.&nbsp;2019) via Agent-Based Modeling</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="opinion-cascades" class="level2">
+<h2 class="anchored" data-anchor-id="opinion-cascades">Opinion Cascades</h2>
+<div style="text-align: justify">
+<p>Cascade effects have been demonstrated by <span class="citation" data-cites="salganik2006">Salganik et al. (<a href="#ref-salganik2006" role="doc-biblioref">2006</a>)</span> in a unique experimental setup involving multiple worlds, i.e.&nbsp;experimental instances with identical initial states. Due to the enormous influence of idiosyncratic decisions made by first movers who then influenced others’ decisions, each world ended in markedly different states that were impossible to forecast accurately.</p>
+</div>
+<div style="text-align: justify">
+<p>Analogously, <span class="citation" data-cites="macy2019">Macy et al. (<a href="#ref-macy2019" role="doc-biblioref">2019</a>)</span> used a multiple-world setup for their “Future Controversies” experiment that produced opinion cascades, an emergent effect of micro-level social influence that leads to opinion polarization outcomes which cannot be reliably predicted with knowledge about individuals’ preferences. In an online survey experiment, Macy et al.&nbsp;asked participants, who had reported their partisan identity on a four-point scale (strongly Republican to strongly Democrat), whether they agreed or disagreed with statements. These statements could be normative or descriptive, and had not yet been subject to public discourse which might cause pre-existing political polarization. Of a number of proposed statements, Macy et al.&nbsp;chose 20 which were closest to 50/50 agreement by Democrats and Republicans in pilot testing. In the experimental setup, two control groups were presented with these statements and asked to agree or disagree as a Republican or Democrat, cueing for partisan identity only. Eight treatment groups were additionally presented with accurate information about which partisan camp had agreed to the statement more often so far <span class="citation" data-cites="macy2019">(<a href="#ref-macy2019" role="doc-biblioref">Macy et al. 2019</a>, supplementary material)</span>, cueing for identity-based social influence.</p>
+</div>
+<div style="text-align: justify">
+<p>The control groups displayed stochastic variation in opinions consistent with variation found in pilot testing based on the intrinsic appeal of the statements. Differences between agreement and disagreement rates based on partisan identity were present but weak, and the direction of majorities was predictable using the intrinsic appeal measured in pilot testing. The treatment groups displayed both unpredictable majorities and higher overall polarization. Across worlds, statements would frequently flip, i.e.&nbsp;receive a Democrat majority in one, and a Republican majority in the other. These majorities were not tentative, either. Even statements with relatively weak appeal relative to the others in pilot testing and independence worlds produced considerable polarization in influence worlds. <span class="citation" data-cites="macy2019">(<a href="#ref-macy2019" role="doc-biblioref">Macy et al. 2019, 2ff</a>.)</span></p>
+</div>
+</section>
+<section id="simulation-testbed-and-specification" class="level2">
+<h2 class="anchored" data-anchor-id="simulation-testbed-and-specification">Simulation testbed and specification</h2>
+<div style="text-align: justify">
+<p>Rather than attempting exact empirical calibration, I have opted for the simplest possible model that replicates the phenomenon of opinion cascades using numbers that are roughly equivalent to Macy et al.&nbsp;The model consists of three components: statements, agents, and task environment.</p>
+</div>
+<div style="text-align: justify">
+<ol type="1">
+<li>A list of N statements is initialized (once for all worlds), each of which is assigned an intrinsic appeal αg for each party g between -1 and 1.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> For the simulation presented in this essay, I have opted for N = 20 and <span class="math inline">\(α_{g}\)</span> in randomly sampled symmetric pairs between -0.05 and 0.05 (e.g.&nbsp;if intrinsic appeal is 0.05 for Republicans, it is -0.05 for Democrats) to simulate statements that elicit weak differences in partisan agreement.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></li>
+</ol>
+</div>
+<div style="text-align: justify">
+<ol start="2" type="1">
+<li>N agents are initialized per world, each of which is assigned an in-group (i.e.&nbsp;party) g, an identification strength s, and a susceptibility to similarity biased influence <span class="math inline">\(β\)</span>. For this essay, N = 1000, in-group is sampled with replacement from categories “Democrats” and “Republicans” with probability 0.5 each, identification strength is sampled with replacement from categories “normal” and “strong” with probability 0.6 and 0.4 respectively. Susceptibility to influence is assigned based on group identification strength, where “strong” = 0.2, and “normal” = 0.1.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></li>
+</ol>
+</div>
+<div style="text-align: justify">
+<ol start="3" type="1">
+<li>The environment simulates an online survey. Each statement is presented to all agents in random order before proceeding to the next statement.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> In the independence condition, only intrinsic appeal factors into an agent’s decision to agree or disagree with a statement, such that</li>
+</ol>
+</div>
+<p><span class="math display">\[p_{i,j} = 0.5 + α_{i,j,g}\]</span></p>
+<div style="text-align: justify; margin-left:2em;">
+<p>where <span class="math inline">\(p_{i,j}\)</span> is the probability that agent <span class="math inline">\(i\)</span> will agree with statement <span class="math inline">\(j\)</span>, 0.5 is the prior assumption that, without any further information, the agent would be as likely to agree as to disagree, and <span class="math inline">\(α_{i,j,g}\)</span> is the intrinsic appeal of statement <span class="math inline">\(j\)</span> for agent <span class="math inline">\(i\)</span>’s in-group (i.e.&nbsp;party) <span class="math inline">\(g\)</span>.</p>
+</div>
+<div style="text-align: justify; margin-left:2em;">
+<p>For the influence condition, there is a running tally which records all prior decisions made by agents. First movers calculate their decision analogous to the independence condition, subsequent agents are provided with accurate information about the current majority, which they factor into their decision based on their susceptibility to social influence, such that</p>
+</div>
+<p><span class="math display">\[p_{i,j} = 0.5 + α_{i,j,g} + β_{i} * m_{i,g,t}\]</span></p>
+<div style="text-align: justify; margin-left:2em;">
+<p>where <span class="math inline">\(β_{i}\)</span> is agent <span class="math inline">\(i\)</span>’s susceptibility to influence, and <span class="math inline">\(m_{i,g,t}\)</span> is the majority opinion of agent <span class="math inline">\(i\)</span>’s in-group <span class="math inline">\(g\)</span> at time <span class="math inline">\(t\)</span>, which is expressed as -1 (disagree) or 1 (agree).</p>
+</div>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<div style="text-align: justify">
+<p>The model reproduced the two main results of Macy et al.’s experiment, unpredictability and polarization. First, while party majorities in the independence worlds were predictable with previous knowledge about each statement’s intrinsic appeal, party majorities in the influence worlds frequently flipped (see also Appendix Table 1). This is illustrated by statement 10. At 4.6% intrinsic appeal to Republicans (and symmetrically, -4.6% to Democrats), it was among the most strongly weighted statements in the set, resulting in a Republican majority in both independence worlds. In the eight influence worlds, however, majorities agreeing were tied four to four between Republicans and Democrats, demonstrating the chaotic effect of social influence on outcomes. Logistic regression further illustrates this for the entire simulation by showing that intrinsic appeal of a statement is a strong predictor in independence worlds, but significantly weakened in influence worlds:</p>
+</div>
+<p><img src="images/githubcascadeplotlog1.png" class="img-fluid quarto-figure quarto-figure-center"> <img src="images/githubcascadeplotlog2.png" class="img-fluid quarto-figure quarto-figure-center"></p>
+<div style="text-align: justify; font-size: 75%;">
+<p>Fig. 1. Logistic regression over pooled simulation results. (a) While intrinsic appeal is an accurate predictor for majority agreement under the independence condition, (b) opinion cascades introduced in the influence condition lessen its predictive strength considerably.</p>
+</div>
+<div style="text-align: justify">
+<p>Second, polarization between respondents based on party identity, calculated as the proportion of Democrats agreeing to a statement minus the proportion of Republicans agreeing <span class="citation" data-cites="macy2019">(<a href="#ref-macy2019" role="doc-biblioref">Macy et al. 2019, 3</a>)</span>, is much more pronounced in the influence condition.</p>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/githubcascadeplotdist.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<div style="text-align: justify; font-size: 75%;">
+<p>Fig. 2. Partisan difference. Polarization is minimal in independence worlds (1 and 2), whereas influence worlds consistently show greater polarization.</p>
+</div>
+<div style="text-align: justify">
+<p>Statement 10 again illustrates the interplay between intrinsic appeal and social influence. While it is close to the maximum of 5% intrinsic appeal specified in the sampling process for this simulation run, it is not enough to override an opinion cascade already underway. However, the statement is among the least popular for Democrats in worlds 3, 5, 6, and 7, where it achieved a Democrat majority, and among the most popular for Republicans in worlds 4, 8, 9, and 10, where it achieved a Republican majority. Thus, even at this low level, intrinsic appeal can be assumed to have a marked effect on the extent of polarization.</p>
+</div>
+</section>
+<section id="discussion-and-conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="discussion-and-conclusion">Discussion and Conclusion</h2>
+<div style="text-align: justify">
+<p>This simulation was an exercise in simplicity, constructing a minimal proposal ‘from first principles’. In hindsight, the model architecture lacks flexibility in the independence condition: agents with certain characteristics may be more susceptible to an item’s intrinsic appeal - simulating, for example, reactions to variations in wording that activate different moral intuitions of respondents <span class="citation" data-cites="keijzer2024">(<a href="#ref-keijzer2024" role="doc-biblioref">Keijzer et al. 2024, 3.14</a>)</span>. Future iterations of this model should include this possibility.</p>
+</div>
+<div style="text-align: justify">
+<p>Furthermore, the original experimental design by Macy et al.&nbsp;may have implicitly mixed effects of “similarity biased influence” and “repulsive influence” <span class="citation" data-cites="flache2017">(<a href="#ref-flache2017" role="doc-biblioref">Flache et al. 2017</a>)</span> (or “alignment” and “distancing” <span class="citation" data-cites="keijzer2024">(<a href="#ref-keijzer2024" role="doc-biblioref">Keijzer et al. 2024, 3.11ff</a>.)</span>) by supplying respondents with information about both their own and the opposing party’s running tally <span class="citation" data-cites="macy2019">(<a href="#ref-macy2019" role="doc-biblioref">Macy et al. 2019</a>, supplementary material)</span>. My model is built to represent similarity biased influence only; therefore, should these effects have separate strengths in this setup, it would have to be amended.</p>
+</div>
+<div style="text-align: justify">
+<p>To contribute to a unified theory of social influence rather than adding to “the accumulation of social-influence models” <span class="citation" data-cites="flache2017">(<a href="#ref-flache2017" role="doc-biblioref">Flache et al. 2017, 3.2</a>)</span>, ABMs should conform to standards of model and code architecture <span class="citation" data-cites="flache2017">(<a href="#ref-flache2017" role="doc-biblioref">Flache et al. 2017, 3.7</a>)</span> and documentation agreed upon by the wider research community, such that integration into an existing framework is possible with minimal alterations. Future iterations of this model should take these standards into consideration and aim for maximum compatibility with the existing literature.</p>
+</div>
+<div style="text-align: justify">
+<p>Despite its weaknesses, there is ample opportunity for further simulations using this model or variations of it. Most obviously, simulating different combinations of number of first movers, intrinsic appeal, and social influence would ascertain their relative and combined effects and might indicate tipping points where the strength of one rapidly overtakes the others. To simulate a multi-party system, one may add groups to the simulation and possibly make agents’ identification continuous to reflect weak and distributed party loyalty displayed by voters in such systems. One may also add categories to statements and assign weighting scores for each to agents, simulating individual affinity to thematic clusters such as ‘environment’ or ‘abortion’.</p>
+</div>
+<div style="text-align: justify">
+<p>Further simulations should aim to move toward ecologically valid micro-assumptions and ecologically relevant network structures. To this end, the robustness of opinion cascades needs to be tested in more complex conditions, including network structures with multiple interactions and bi-directional links as well as different weights of agents’ influence. Hypotheses generated by these models must then be tested with human subjects.</p>
+</div>
+
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-flache2017" class="csl-entry" role="listitem">
+Flache, Andreas, Michael Mäs, Thomas Feliciani, et al. 2017. <span>“Models of Social Influence: Towards the Next Frontiers.”</span> <em>Journal of Artificial Societies and Social Simulation</em> 20 (4): 2. <a href="https://doi.org/10.18564/jasss.3521">https://doi.org/10.18564/jasss.3521</a>.
+</div>
+<div id="ref-keijzer2024" class="csl-entry" role="listitem">
+Keijzer, Marijn, Michael Mäs, and Andreas Flache. 2024. <span>“Polarization on Social Media: Micro-Level Evidence and Macro-Level Implications.”</span> <em>Journal of Artificial Societies and Social Simulation</em> 27 (1): 7. <a href="https://doi.org/10.18564/jasss.5298">https://doi.org/10.18564/jasss.5298</a>.
+</div>
+<div id="ref-macy2019" class="csl-entry" role="listitem">
+Macy, Michael, Sebastian Deri, Alexander Ruch, and Natalie Tong. 2019. <span>“Opinion Cascades and the Unpredictability of Partisan Polarization.”</span> <em>Science Advances</em> 5 (8): eaax0754. <a href="https://doi.org/10.1126/sciadv.aax0754">https://doi.org/10.1126/sciadv.aax0754</a>.
+</div>
+<div id="ref-salganik2006" class="csl-entry" role="listitem">
+Salganik, Matthew J., Peter Sheridan Dodds, and Duncan J. Watts. 2006. <span>“Experimental Study of Inequality and Unpredictability in an Artificial Cultural Market.”</span> <em>Science</em> 311 (5762): 854–56. <a href="https://doi.org/10.1126/science.1121066">https://doi.org/10.1126/science.1121066</a>.
+</div>
+</div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>This architecture allows for an arbitrary number of groups with individual affinities for each statement, potentially enabling the simulation of opinion cascades in a multi-party system.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>See Appendix Table 1 for a list of statements and intrinsic appeals used for the simulation.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>Using this architecture, it would also be possible to sample individual susceptibilities for each agent, simulating, for example, differences in character traits.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>Presenting statements to each respondent in random order is necessary in human experiments to prevent question order effects, but unnecessary in simulations.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
